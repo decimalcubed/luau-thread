@@ -46,23 +46,41 @@ function thread.spawn(execute_module: ModuleScript, ...): number
 	
 	--Mark the current ID as active and start the thread
 	activeThreads[highestThreadId] = {};
-	actor:SendMessage("RunThread", highestThreadId, execute_module, shared_table, ...)
+	actor:SendMessage("RunThread", highestThreadId, execute_module, ...)
 	
 	return highestThreadId
 end
 
-function thread.join(thread_id: number)
+function thread.join(thread_id: number | { number })
 	
-	--Return instantly if the given thread has allready finished
-	local active_thread = activeThreads[thread_id]
-	if not active_thread then
+	if type(thread_id) == "table" then
 		
-		return
+		for _, thread_id in thread_id do
+			
+			--Return instantly if the given thread has allready finished
+			local active_thread = activeThreads[thread_id]
+			if not active_thread then
+
+				return
+			end
+
+			--Stop current thread and add to active coroutine tracker
+			table.insert(active_thread, coroutine.running())
+			coroutine.yield()
+		end
+	else
+		
+		--Return instantly if the given thread has allready finished
+		local active_thread = activeThreads[thread_id]
+		if not active_thread then
+
+			return
+		end
+
+		--Stop current thread and add to active coroutine tracker
+		table.insert(active_thread, coroutine.running())
+		coroutine.yield()
 	end
-	
-	--Stop current thread and add to active coroutine tracker
-	table.insert(active_thread, coroutine.running())
-	coroutine.yield()
 end
 
 --Connect to the thread finished signal to respawn join coroutines
