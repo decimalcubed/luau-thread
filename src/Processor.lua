@@ -10,7 +10,7 @@ selfActor:BindToMessage("RunThread", function(thread_id: number, execute_module:
 
 	--Execute execute_module
 	task.desynchronize()
-	execute(shared_table, ...)
+	execute(...)
 	task.synchronize()
 
 	--Resume all threads waiting on this
