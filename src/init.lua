@@ -36,7 +36,7 @@ end
 
 --- << Public variables
 
-function thread.spawn(execute_module: ModuleScript, shared_table: SharedTable, ...): number
+function thread.spawn(execute_module: ModuleScript, ...): number
 	
 	highestThreadId += 1
 	
