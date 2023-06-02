@@ -5,7 +5,7 @@ local threadFinishedSignal = script.Parent.Parent:FindFirstChild("ThreadFinished
 
 local selfActor = script:GetActor()
 selfActor:BindToMessage("RunThread", function(thread_id: number, execute_module: ModuleScript, ...)
-	
+
 	local execute = require(execute_module)
 
 	--Execute execute_module
@@ -16,3 +16,5 @@ selfActor:BindToMessage("RunThread", function(thread_id: number, execute_module:
 	--Resume all threads waiting on this
 	threadFinishedSignal:Fire(thread_id, selfActor)
 end)
+
+return nil
