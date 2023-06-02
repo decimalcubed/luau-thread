@@ -19,7 +19,7 @@ arguments. Returns the id of the spawned thread.
     local runningThreads = {}
     for i = 1, 16 do
     
-      table.insert(runningThreads, thread.spawn(execute_module, resultTable, i)
+      table.insert(runningThreads, thread.spawn(execute_module, sharedTable, i) --Extra arguments can be passed through like a function
     end
     ```
 ---
