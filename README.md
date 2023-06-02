@@ -9,13 +9,13 @@ arguments. Returns the id of the spawned thread.
   - **Type**
 
     ```lua
-    function thread.spawn(execute_module: ModuleScript, shared_table: SharedTable, ...): number
+    function thread.spawn(execute_module: ModuleScript, ...): number
     ```
   
   - **Usage**
 
     ```lua
-    local sharedTable = SharedTable.new()
+    local sharedTable = SharedTable.new() --Not necessary, but must be used to return any data.
     local runningThreads = {}
     for i = 1, 16 do
     
@@ -26,12 +26,12 @@ arguments. Returns the id of the spawned thread.
 
 ### join()
 
-Yields the calling coroutine until the given thread has finished executing (if it isn't allready finished).
+Yields the calling coroutine until the given thread(s) has finished executing (if it isn't allready finished).
 
   - **Type**
 
     ```lua
-    function thread.join(thread_id: number)
+    function thread.join(thread_id: number | { number })
     ```
   
   - **Usage**
@@ -49,5 +49,21 @@ Yields the calling coroutine until the given thread has finished executing (if i
 
 The library takes in modules in place of functions since functions cannot be cross-loaded between Luau VMs, meaning modules must be used in place of functions.
 
-  - **Usage**
-  When passing a module through the module must immediately return a function typed as such:
+  - **Type**
+    When passing a module through the module must only return a function as such:
+    ```lua
+    return function(...)
+    end
+    ```
+---
+
+### SharedTables
+
+If you want to return any data from running parallel code you must use SharedTables;
+as regular tables cannot be used to return data, and using regular returns is impossible with the new api.
+
+  - **Type**
+    ```lua
+    local sharedTable = SharedTable.new()
+    local t = thread.spawn(execute_module, sharedTable)
+    ```
