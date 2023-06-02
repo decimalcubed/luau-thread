@@ -43,6 +43,10 @@ Yields the calling coroutine until the given thread(s) has finished executing (i
       thread.join(v)
     end
     ```
+    ```lua
+    --Sugar syntax for the previous code block
+    thread.join(runningThreads)
+    ```
 ---
 
 ### modules
