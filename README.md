@@ -54,6 +54,7 @@ Yields the calling coroutine until the given thread(s) has finished executing (i
 The library takes in modules in place of functions since functions cannot be cross-loaded between Luau VMs, meaning modules must be used in place of functions.
 
   - **Type**
+  
     When passing a module through the module must only return a function as such:
     ```lua
     return function(...)
