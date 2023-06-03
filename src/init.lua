@@ -7,9 +7,19 @@ local processorParent = if runContextIsClient then game:GetService("Players").Lo
 
 --- << Make instances
 
-local threadFinishedSignal = Instance.new("BindableEvent")
-threadFinishedSignal.Name = "ThreadFinished"
-threadFinishedSignal.Parent = script
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+--Get thread finished signal (Or create it if it allready exists, which could be the case if it was placed there in the editor or if the server made it)
+local threadFinishedSignal = ReplicatedStorage:FindFirstChild("ThreadFinished") :: BindableEvent?
+if not threadFinishedSignal then
+	
+	threadFinishedSignal = Instance.new("BindableEvent")
+	assert(threadFinishedSignal) --Typechecker wack
+	
+	threadFinishedSignal.Name = "ThreadFinished"
+	threadFinishedSignal.Parent = ReplicatedStorage
+end
+assert(threadFinishedSignal)
 
 --- << thread tracking
 
