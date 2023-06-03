@@ -31,7 +31,6 @@ local function BuildActor(): Actor
 	(require :: any)(processor);
 
 	--Build actor cache entry
-	table.insert(actorCache, actor)
 	return actor
 end
 
@@ -42,8 +41,7 @@ function thread.spawn(execute_module: ModuleScript, ...): number
 	highestThreadId += 1
 
 	--Get the last available actor or a new one
-	local actor = actorCache[#actorCache] or BuildActor()
-	table.remove(actorCache)
+	local actor = table.remove(actorCache) or BuildActor()
 
 	--Mark the current ID as active and start the thread
 	activeThreads[highestThreadId] = {};
