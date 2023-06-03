@@ -1,6 +1,8 @@
 --!strict
 
 local thread = {}
+local runContextIsClient = game:GetService("RunService"):IsClient()
+local processorToUse = if runContextIsClient then script.Processor_Client else script.Processor_Server
 
 --- << Make instances
 
@@ -19,25 +21,25 @@ local actorCache: {Actor} = {}
 
 --- << Private functions
 local function BuildActor(): Actor
-
+	
+	--Build processor and actor
 	local actor = Instance.new("Actor")
 	actor.Name = "ThreadActor"
 	actor.Parent = script
-
-	--Put a processor in the actor and activate it via require()
-	local processor = script.Processor:Clone()
-	processor.Parent = actor;
 	
-	(require :: any)(processor);
-
-	--Build actor cache entry
+	local processor = processorToUse:Clone()
+	processor.Parent = actor
+	
+	--Enable processor
+	processor.Enabled = true
+	
 	return actor
 end
 
 --- << Public variables
 
 function thread.spawn(execute_module: ModuleScript, ...): number
-
+	
 	highestThreadId += 1
 
 	--Get the last available actor or a new one
@@ -45,8 +47,9 @@ function thread.spawn(execute_module: ModuleScript, ...): number
 
 	--Mark the current ID as active and start the thread
 	activeThreads[highestThreadId] = {};
+	
 	actor:SendMessage("RunThread", highestThreadId, execute_module, ...)
-
+	
 	return highestThreadId
 end
 
