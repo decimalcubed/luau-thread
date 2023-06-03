@@ -3,6 +3,7 @@
 local thread = {}
 local runContextIsClient = game:GetService("RunService"):IsClient()
 local processorToUse = if runContextIsClient then script.Processor_Client else script.Processor_Server
+local processorParent = if runContextIsClient then game:GetService("Players").LocalPlayer.PlayerScripts else game:GetService("ServerScriptService")
 
 --- << Make instances
 
@@ -25,7 +26,7 @@ local function BuildActor(): Actor
 	--Build processor and actor
 	local actor = Instance.new("Actor")
 	actor.Name = "ThreadActor"
-	actor.Parent = script
+	actor.Parent = processorParent
 	
 	local processor = processorToUse:Clone()
 	processor.Parent = actor
