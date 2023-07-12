@@ -9,7 +9,7 @@ local processorParent = if runContextIsClient then game:GetService("Players").Lo
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
---Get thread finished signal (Or create it if it allready exists, which could be the case if it was placed there in the editor or if the server made it)
+--Get thread finished signal (Or create it if it already exists, which could be the case if it was placed there in the editor or if the server made it)
 local threadFinishedSignal = ReplicatedStorage:FindFirstChild("ThreadFinished") :: BindableEvent?
 if not threadFinishedSignal then
 	
@@ -70,11 +70,11 @@ function thread.join(thread_id: number | { number })
 
 		for _, thread_id in thread_id do
 
-			--Return instantly if the given thread has allready finished
+			--Continue if the given thread has already finished
 			local active_thread = activeThreads[thread_id]
 			if not active_thread then
 
-				return
+				continue
 			end
 
 			--Stop current thread and add to active coroutine tracker
@@ -83,7 +83,7 @@ function thread.join(thread_id: number | { number })
 		end
 	else
 
-		--Return instantly if the given thread has allready finished
+		--Return instantly if the given thread has already finished
 		local active_thread = activeThreads[thread_id]
 		if not active_thread then
 
