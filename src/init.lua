@@ -1,15 +1,12 @@
 --!strict
 
 local thread = {}
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local runContextIsClient = game:GetService("RunService"):IsClient()
 local processorToUse = if runContextIsClient then script.Processor_Client else script.Processor_Server
 local processorParent = if runContextIsClient then game:GetService("Players").LocalPlayer.PlayerScripts else game:GetService("ServerScriptService")
 
---- << Make instances
-
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
---Get thread finished signal (Or create it if it already exists, which could be the case if it was placed there in the editor or if the server made it)
+-- Get thread finished signal (Or create it if it already exists, which could be the case if it was placed there in the editor or if the server made it)
 local threadFinishedSignal = ReplicatedStorage:FindFirstChild("ThreadFinished") :: BindableEvent?
 if not threadFinishedSignal then
 	
@@ -21,36 +18,40 @@ if not threadFinishedSignal then
 end
 assert(threadFinishedSignal)
 
---- << thread tracking
-
+-- Thread tracking
 local highestThreadId = 0
 local activeThreads: {{thread}} = {}
 
---- << Actor tracking
-
+-- Actor tracking
 local actorCache: {Actor} = {}
-
---- << Private functions
 local function BuildActor(): Actor
+	
+	debug.profilebegin("thread_BuildActor")
 	
 	--Build processor and actor
 	local actor = Instance.new("Actor")
 	actor.Name = "ThreadActor"
 	actor.Parent = processorParent
-	
+
 	local processor = processorToUse:Clone()
 	processor.Parent = actor
-	
+
 	--Enable processor
 	processor.Enabled = true
 	
+	debug.profileend()
+
 	return actor
 end
 
---- << Public variables
+--[[
+	Public
+]]
 
 function thread.spawn(execute_module: ModuleScript, ...): number
 	
+	debug.profilebegin("thread_spawn")
+
 	highestThreadId += 1
 
 	--Get the last available actor or a new one
@@ -58,8 +59,10 @@ function thread.spawn(execute_module: ModuleScript, ...): number
 
 	--Mark the current ID as active and start the thread
 	activeThreads[highestThreadId] = {};
-	
+
 	actor:SendMessage("RunThread", highestThreadId, execute_module, ...)
+	
+	debug.profileend()
 	
 	return highestThreadId
 end
@@ -96,9 +99,11 @@ function thread.join(thread_id: number | { number })
 	end
 end
 
---Connect to the thread finished signal to respawn join coroutines
+-- Connect to the thread finished signal to respawn join coroutines
 threadFinishedSignal.Event:Connect(function(id: number, actor: Actor)
-
+	
+	debug.profilebegin("thread_internal_ResumeYieldedThreads")
+	
 	local active_thread = activeThreads[id]
 	for _, v in active_thread do
 
@@ -110,6 +115,7 @@ threadFinishedSignal.Event:Connect(function(id: number, actor: Actor)
 
 	--Add the actor back to the actor cache
 	table.insert(actorCache, actor)
+	debug.profileend()
 end)
 
 return table.freeze(thread)
