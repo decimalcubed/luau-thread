@@ -10,9 +10,13 @@ selfActor:BindToMessage("RunThread", function(thread_id: number, execute_module:
 
 	--Execute execute_module
 	task.desynchronize()
+	debug.profilebegin("thread_client_processor_execute")
 	execute(...)
+	debug.profileend()
 	task.synchronize()
 
 	--Resume all threads waiting on this
+	debug.profilebegin("thread_client_processor_finish")
 	threadFinishedSignal:Fire(thread_id, selfActor)
+	debug.profileend()
 end)
