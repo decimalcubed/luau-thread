@@ -34,7 +34,7 @@ local function BuildVM(): BindableEvent
 	--Enable processor
 	processor.Enabled = true
 
-	return actor :: any
+	return communication_signal :: any
 end
 
 --[[
