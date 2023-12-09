@@ -99,7 +99,7 @@ threadFinishedSignal.Event:Connect(function(id: number, signal: BindableEvent)
 	-- Disconnect and clean up
 	activeThreads[id] = nil
 
-	-- Add the actor back to the actor cache
+	-- Add the signal back to the signal cache
 	table.insert(signalCache, signal)
 end)
 
