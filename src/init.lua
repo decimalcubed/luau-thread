@@ -15,21 +15,26 @@ local highestThreadId = 0
 local activeThreads: {{thread}} = {}
 
 -- Actor tracking
-local actorCache: {Actor} = {}
-local function BuildActor(): Actor
+local signalCache: {BindableEvent} = {}
+local function BuildVM(): BindableEvent
 	
-	--Build processor and actor
+	-- Build processor and actor
 	local actor = Instance.new("Actor")
 	actor.Name = "ThreadActor"
 	actor.Parent = processorParent
-
+	
 	local processor = processorToUse:Clone()
 	processor.Parent = actor
+	
+	-- Create event
+	local communication_signal = Instance.new("BindableEvent")
+	communication_signal.Name = "ThreadCommunicationSignal"
+	communication_signal.Parent = actor
 
 	--Enable processor
 	processor.Enabled = true
 
-	return actor
+	return actor :: any
 end
 
 --[[
@@ -40,12 +45,12 @@ function thread.spawn(execute_module: ModuleScript, ...): number
 
 	highestThreadId += 1
 
-	--Get the last available actor or a new one
-	local actor = table.remove(actorCache) or BuildActor()
+	-- Get the last available signal or build new one
+	local signal = table.remove(signalCache) or BuildVM()
 
-	--Mark the current ID as active and start the thread
+	-- Mark the current ID as active and start the thread
 	activeThreads[highestThreadId] = {};
-	actor:SendMessage("RunThread", highestThreadId, execute_module, ...)
+	signal:Fire(highestThreadId, execute_module, ...)
 	
 	return highestThreadId
 end
@@ -56,34 +61,34 @@ function thread.join(thread_id: number | { number })
 
 		for _, thread_id in thread_id do
 
-			--Continue if the given thread has already finished
+			-- Continue if the given thread has already finished
 			local active_thread = activeThreads[thread_id]
 			if not active_thread then
 
 				continue
 			end
 
-			--Stop current thread and add to active coroutine tracker
+			-- Stop current thread and add to active coroutine tracker
 			table.insert(active_thread, coroutine.running())
 			coroutine.yield()
 		end
 	else
 
-		--Return instantly if the given thread has already finished
+		-- Return instantly if the given thread has already finished
 		local active_thread = activeThreads[thread_id]
 		if not active_thread then
 
 			return
 		end
 
-		--Stop current thread and add to active coroutine tracker
+		-- Stop current thread and add to active coroutine tracker
 		table.insert(active_thread, coroutine.running())
 		coroutine.yield()
 	end
 end
 
 -- Connect to the thread finished signal to respawn join coroutines
-threadFinishedSignal.Event:Connect(function(id: number, actor: Actor)
+threadFinishedSignal.Event:Connect(function(id: number, signal: BindableEvent)
 	
 	local active_thread = activeThreads[id]
 	for _, v in active_thread do
@@ -91,11 +96,11 @@ threadFinishedSignal.Event:Connect(function(id: number, actor: Actor)
 		coroutine.resume(v)
 	end
 
-	--Disconnect and clean up
+	-- Disconnect and clean up
 	activeThreads[id] = nil
 
-	--Add the actor back to the actor cache
-	table.insert(actorCache, actor)
+	-- Add the actor back to the actor cache
+	table.insert(signalCache, signal)
 end)
 
 return table.freeze(thread)
