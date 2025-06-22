@@ -129,4 +129,6 @@ If you want to return any data from running parallel code a simple and intuitive
     
     They have incredibly slow read and write speeds, making them nearly useless for any bulk computation, which can result in multi-threaded code running **much slower** than it would if it was single-threaded.
 
-i was gonna add a section for Actor:SendMessage() but its so slow and so useless and is deferred which adds like 10ms to every operation so im not even gonna bother covering it, you should not be using it at all.
+i was gonna add a section for Actor:SendMessage() but it was so slow and so useless the last time i used it and its deferred which adds like 10ms to every operation so im not even gonna bother covering it, idk just dont use it ig
+
+to be fair though you should really do your own benchmarks on a per-project basis cause bindableevents do have a consistently pretty large overhead so if youre only sending a tiny amount of data back or using buffers and dont mind your code ending up being deferred it might not be that bad of an idea to use sendmessage or something
